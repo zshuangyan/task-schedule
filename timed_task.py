@@ -2,8 +2,9 @@ import time
 from util import generate_name
 from threading import Event
 
+
 class TimedTask:
-    def __init__(self, task, start=None, end=None, period=60, condition=None, name=None):
+    def __init__(self, task, start=None, end=None, period=60, name=None):
         if not name:
             self.name = generate_name()
         else:
@@ -12,7 +13,6 @@ class TimedTask:
         self.start = start
         self.end = end
         self.period = period
-        self.condition = condition
         self.event = Event()
 
     def run(self):
@@ -23,9 +23,12 @@ class TimedTask:
             elif self.end and now > self.end:
                 return
             else:
-                if self.task.meet_condition(self.condition):
-                    self.task.run()
-                time.sleep(self.period)
+                self.task.run()
+                # 执行任务过程中消耗的时间也要算在周期内
+                time_elasped = time.time() - now
+                time_left = self.period - time_elasped
+                if time_left > 0:
+                    time.sleep(time_left)
 
     def stop(self):
         self.event.set()

@@ -1,60 +1,58 @@
-from task import Task
 from timed_task import TimedTask
-import subprocess
-import shlex
+
 import time
 import threading
 
-class ShellTask(Task):
-    def __init__(self, command, timeout=60, *args, **kwargs):
-        self.command = command
-        self.timeout = timeout
-
-    def run(self, *args, **kwargs):
-        if type(self.command) == str:
-            self.command = shlex.split(self.command)
-
-        try:
-            result = subprocess.run(self.command, 
-                                    timeout=self.timeout,
-                                    universal_newlines=True)
-        except subprocess.CalledProcessError as e:
-            return str(e)
-        
-        else:
-            return "stderr: %s\nstdout: %s" % (result.stderr, result.stdout)
-
-    def meet_condition(self, *args, **kwargs):
-        return True
-
 tasks = dict()
+
+
+class TaskExistError(Exception):
+    pass
+
+
+class TaskNotExistError(Exception):
+    pass
+
 
 def add_task(task_obj):
     if not isinstance(task_obj, TimedTask):
-        raise TypeError("Make sure task inherit from TimedTask")
+        raise TypeError("Make sure task inherit from TimedTask.")
+    if task_obj.name in tasks:
+        raise TaskExistError("Task: %s already scheduled." % task_obj.name)
     tasks[task_obj.name] = task_obj
     t = threading.Thread(target=task_obj.run)
     t.start()
-    
 
-def remove_task(task_obj):
-    if not isinstance(task_obj, TimedTask):
-        raise TypeError("Make sure task inherit from TimedTask")
+
+def remove_task(task_name):
+    if task_name not in tasks:
+        raise TaskNotExistError("Task: %s not exist." % task_name)
+    task_obj = tasks[task_name]
     task_obj.stop()
     del tasks[task_obj.name]
 
+
 if __name__ == "__main__":
-    task = ShellTask("date")
-    start = time.strptime("2019-04-16 21:52:00", "%Y-%m-%d %H:%M:%S")
-    end = time.strptime("2019-04-16 21:55:00", "%Y-%m-%d %H:%M:%S")
-    timed_task = TimedTask(task, time.mktime(start), time.mktime(end), 10, name="task1")
-    
-    task2 = ShellTask("date -R")
+    from task import ShellTask
+    task = ShellTask("echo task1")
+    start = time.strptime("2019-04-21 16:00:00", "%Y-%m-%d %H:%M:%S")
+    end = time.strptime("2019-04-21 16:05:00", "%Y-%m-%d %H:%M:%S")
+    timed_task = TimedTask(task, time.mktime(start), time.mktime(end), period=10, name="task1")
+
+    task2 = ShellTask("echo task2")
     timed_task2 = TimedTask(task2, period=5, name="task2")
+    print("当前线程数: %s" % threading.active_count())
     add_task(timed_task)
-    time.sleep(10)
+    time.sleep(2)
+    print("添加task1后, 当前运行线程数: %s" % threading.active_count())
     add_task(timed_task2)
-    time.sleep(30)
-    remove_task(timed_task2)
+    time.sleep(2)
+    print("添加task2后, 当前运行线程数: %s" % threading.active_count())
     time.sleep(20)
-    remove_task(timed_task)
+    remove_task("task1")
+    time.sleep(2)
+    print("删除task1后, 当前运行线程数: %s" % threading.active_count())
+    time.sleep(20)
+    remove_task("task2")
+    time.sleep(2)
+    print("删除task2后, 当前运行线程数: %s" % threading.active_count())

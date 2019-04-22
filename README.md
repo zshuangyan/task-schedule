@@ -12,6 +12,7 @@ python setup.py install
 ```
 
 # API Documentations
+```
 添加任务：  
 add_task(name, task, opts)
 
@@ -20,6 +21,7 @@ remove_task(name)
 
 清理所有任务:  
 clear_task()
+```
 
 # Getting Started
 系统已实现了基于Shell命令执行的任务, 使用方法示例：  

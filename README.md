@@ -1,20 +1,25 @@
 # task-schedule
 基于多线程和事件实现的定时任务
 
-支持Python版本：3.5+
+# Prerequisite
+- Python >= 3.5
 
-安装:
+# Install
+git clone git@github.com:zshuangyan/task-schedule.git
+cd task-schedule
 python setup.py install
 
-接口-添加任务：
+# API Documentations
+添加任务：  
 add_task(name, task, opts)
 
-接口-删除任务:
+删除任务:  
 remove_task(name)
 
-接口-清理所有任务:
+清理所有任务:  
 clear_task()
 
+# Getting Started
 系统已实现了基于Shell命令执行的任务, 使用方法示例：  
 ```
 from task_schedule import ShellTask, TaskOption, add_task, remove_task, clear_task

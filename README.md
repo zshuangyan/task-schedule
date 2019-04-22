@@ -1,26 +1,37 @@
 # task-schedule
-基于多线程和事件实现的定时任务，系统已实现了Shell命令执行的任务, 使用方法示例：  
+基于多线程和事件实现的定时任务
+
+支持Python版本：3.5+
+
+安装:
+python setup.py install
+
+系统已实现了Shell命令执行的任务, 使用方法示例：  
 ```
-from task-schedule.schedule_task import ShellTask, TimedTask
-task1 = ShellTask("date")
-start = time.strptime("2019-04-16 21:52:00", "%Y-%m-%d %H:%M:%S")
-end = time.strptime("2019-04-16 21:55:00", "%Y-%m-%d %H:%M:%S")
-timed_task1 = TimedTask(task1, time.mktime(start), time.mktime(end), 10, name="task1")
+from task_schedule import ShellTask, TaskOption, add_task, remove_task, clear_task
+from datetime import datetime, timedelta
+import time
 
-task2 = ShellTask("date -R")
-timed_task2 = TimedTask(task2, period=5, name="task2")
 
-add_task(timed_task)
+task = ShellTask("echo task1")
+add_task("task1", task, TaskOption(start="2019-04-22 15:40:00", period=10))
 time.sleep(10)
-add_task(timed_task2)
-time.sleep(30)
-remove_task(timed_task2)
-time.sleep(20)
-remove_task(timed_task)
 
+
+task2 = ShellTask("echo task2")
+add_task("task2", task2, TaskOption(start=datetime.now(), end="2019-04-22 15:48:00", period=5))
+time.sleep(10)
+
+remove_task("task1")
+
+task3 = ShellTask("echo task3")
+add_task("task3", task3, TaskOption(period=timedelta(seconds=10)))
+time.sleep(10)
+
+clear_task()
 ```
 
-用户也可以定制自己的Task类，需要在Task类中实现run()方法和meet_condition()方法，可参照ShellTask的实现
+用户也可以定制自己的Task类，需要在Task类中实现run()方法，可参照ShellTask的实现
 ```
 class ShellTask(Task):
     def __init__(self, command, timeout=60, *args, **kwargs):
@@ -40,8 +51,4 @@ class ShellTask(Task):
 
         else:
             return "stderr: %s\nstdout: %s" % (result.stderr, result.stdout)
-
-    def meet_condition(self, *args, **kwargs):
-        return True
-
 ```

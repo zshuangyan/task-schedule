@@ -6,27 +6,30 @@
 安装:
 python setup.py install
 
-系统已实现了Shell命令执行的任务, 使用方法示例：  
+接口-添加任务：
+add_task(name, task, opts)
+
+接口-删除任务:
+remove_task(name)
+
+接口-清理所有任务:
+clear_task()
+
+系统已实现了基于Shell命令执行的任务, 使用方法示例：  
 ```
 from task_schedule import ShellTask, TaskOption, add_task, remove_task, clear_task
 from datetime import datetime, timedelta
-import time
-
 
 task = ShellTask("echo task1")
 add_task("task1", task, TaskOption(start="2019-04-22 15:40:00", period=10))
-time.sleep(10)
-
 
 task2 = ShellTask("echo task2")
 add_task("task2", task2, TaskOption(start=datetime.now(), end="2019-04-22 15:48:00", period=5))
-time.sleep(10)
 
 remove_task("task1")
 
 task3 = ShellTask("echo task3")
 add_task("task3", task3, TaskOption(period=timedelta(seconds=10)))
-time.sleep(10)
 
 clear_task()
 ```

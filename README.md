@@ -5,9 +5,11 @@
 - Python >= 3.5
 
 # Install
+```
 git clone git@github.com:zshuangyan/task-schedule.git
 cd task-schedule
 python setup.py install
+```
 
 # API Documentations
 添加任务：  
